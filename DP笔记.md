@@ -1,5 +1,3 @@
-提示：本文在本地 VSCode 上编辑，一些洛谷不支持的 Markdown 特性可能会炸（例如文中导航、内嵌 HTML 等，我是不会修的，你谷赶紧支持这些特性吧！）。
-
 ## 链接
 
 [动态规划初步·各种子序列问题](https://www.luogu.com.cn/blog/pks-LOVING/junior-dynamic-programming-dong-tai-gui-hua-chu-bu-ge-zhong-zi-xu-lie)
