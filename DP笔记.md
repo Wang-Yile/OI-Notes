@@ -1,3 +1,5 @@
+本文应该在 VSCode 上浏览与编辑。
+
 ## 链接
 
 [动态规划初步·各种子序列问题](https://www.luogu.com.cn/blog/pks-LOVING/junior-dynamic-programming-dong-tai-gui-hua-chu-bu-ge-zhong-zi-xu-lie)
