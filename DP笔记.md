@@ -308,6 +308,8 @@ $$dp_u=dp_u+\max{\begin{cases}dp_v\\0\end{cases}}$$
 
 **答案**：所有状态取 $\max$。
 
+求解 [P1122 最大子树和](https://www.luogu.com.cn/problem/P1122)代码：
+
 ```cpp
 #include <iostream>
 #include <vector>
@@ -352,6 +354,128 @@ signed main() {
 ```
 
 ### 换根 DP
+
+在第一次 DFS 时预处理一些信息，基于这些信息，在第二次 DFS 时选择合适的根节点进行 DP。
+
+[P2986 [USACO10MAR] Great Cow Gathering G](https://www.luogu.com.cn/problem/P2986)
+
+**题意**：一棵树，每个点有权值 $a_i$ 和数量 $c_i$，选择一个节点，最小化其它点到它的 $a_i\times c_i$ 之和。
+
+假设每个点都到了节点 $1$，此时节点 $i$ 的贡献为 $w_i$，若选择的节点为 $x$，可以通过加上或减去 $1$ 到 $x$ 的距离完成动态规划，在 $O(n)$ 的时间内求解。
+
+求解 [P2986 [USACO10MAR] Great Cow Gathering G](https://www.luogu.com.cn/problem/P2986)代码：
+
+```cpp
+#include <iostream>
+#include <vector>
+
+#define int long long
+
+using namespace std;
+
+int n, sum;
+int c[100005];
+int cnt[100005];
+int dis[100005];
+int dp[100005];
+vector<pair<int, int>> vec[100005];
+
+static inline int dfs1(int u, int fa) {
+    int count = 0;
+    for (auto [v, w] : vec[u]) {
+        if (v == fa) continue;
+        int s = dfs1(v, u);
+        dis[u] += dis[v] + w * s;
+        count += s;
+    }
+    cnt[u] = c[u] + count;
+    return cnt[u];
+}
+
+static inline void dfs2(int u, int fa) {
+    for (auto [v, w] : vec[u]) {
+        if (v == fa) continue;
+        dp[v] = dp[u] - cnt[v] * w + (sum - cnt[v]) * w;  // 先处理过去 / 回来的牛, 再向下递归
+        dfs2(v, u);
+    }
+}
+
+signed main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    cin >> n;
+    for (int i = 1; i <= n; ++i) {
+        cin >> c[i];
+        sum += c[i];
+    }
+    for (int i = 1; i < n; ++i) {
+        int u, v, w;
+        cin >> u >> v >> w;
+        vec[u].push_back(make_pair(v, w));
+        vec[v].push_back(make_pair(u, w));
+    }
+    dfs1(1, 0);
+    dfs2(1, 0);
+    int ans = 1e9;
+    for (int i = 1; i <= n; ++i) {
+        ans = min(ans, dp[i]);
+    }
+    cout << ans + dis[1] << endl;  // 答案要加上最初的距离
+    return 0;
+}
+```
+
+树的直径（DP 解法）$^{3.1}$
+
+设当 $1$ 为根时，每个节点向下所能延伸的最长路径长度 $d_1$ 与次长路径（与最长路径无公共边）长度 $d_2$，那么树的直径就是对于每一个点，该点 $d_1$ + $d_2$ 能取到的值中的最大值。
+
+树形 DP 可以在存在负权边的情况下求解出树的直径（也可以边权加定值，用 4 次 DFS，两次求直径、两次求节点数）。
+
+```cpp
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+int n, d = 0;
+int d1[10005], d2[10005];
+vector<int> vec[10005];
+
+static inline void dfs(int u, int fa) {
+    d1[u] = d2[u] = 0;
+    for (int v : vec[u]) {
+        if (v == fa) continue;
+        dfs(v, u);
+        int t = d1[v] + 1;
+        if (t > d1[u])
+            d2[u] = d1[u], d1[u] = t;
+        else if (t > d2[u])
+            d2[u] = t;
+    }
+    d = max(d, d1[u] + d2[u]);
+}
+
+signed main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    cin >> n;
+    for (int i = 1; i < n; ++i) {
+        int u, v;
+        cin >> u >> v;
+        vec[u].push_back(v);
+        vec[v].push_back(u);
+    }
+    dfs(1, 0);
+    cout << d << endl;
+    return 0;
+}
+```
+
+### Refrences
+
+[\[3.1\] 树形 DP 求树的直径 - OI-Wiki](https://oi-wiki.org/graph/tree-diameter/#%E5%81%9A%E6%B3%95-2-%E6%A0%91%E5%BD%A2-dp)
 
 ## 版权声明
 
