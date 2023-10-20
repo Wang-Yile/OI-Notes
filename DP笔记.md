@@ -1,8 +1,12 @@
-本文应该在 VSCode 上浏览与编辑。
+本文应该在 VSCode 上浏览与编辑，其它平台可能会炸 Markdown 或 LaTeX，转载自 [GitHub](https://github.com/Wang-Yile/OI-Notes/blob/main/DP%E7%AC%94%E8%AE%B0.md)。
+
+$$\text{CSP-J/S 2023 RP += inf}$$
 
 ## 链接
 
 [动态规划初步·各种子序列问题](https://www.luogu.com.cn/blog/pks-LOVING/junior-dynamic-programming-dong-tai-gui-hua-chu-bu-ge-zhong-zi-xu-lie)
+
+[题解 P1352 【没有上司的舞会】](https://www.luogu.com.cn/blog/xky-666/solution-p1352)
 
 ## 思想
 
@@ -347,7 +351,11 @@ signed main() {
 }
 ```
 
-本文使用 GPL 协议，以下本文的版权声明，转载请依然使用 GPL 协议。
+### 换根 DP
+
+## 版权声明
+
+本文使用 GPL 协议，原文发布在 [GitHub](https://github.com/Wang-Yile/OI-Notes/blob/main/DP%E7%AC%94%E8%AE%B0.md)，以下是本文的版权声明，转载请依然使用 GPL 协议。
 
 ```
     Dynamic Programming Notes  动态规划笔记
