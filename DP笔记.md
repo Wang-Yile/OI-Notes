@@ -1,14 +1,12 @@
-本文应该在 VSCode 上浏览与编辑，其它平台可能会炸 Markdown 或 LaTeX，转载自 [GitHub](https://github.com/Wang-Yile/OI-Notes/blob/main/DP%E7%AC%94%E8%AE%B0.md)。
+本文应该在 VSCode 上浏览与编辑，其它平台可能会炸 Markdown 或 LaTeX（对此），转载自 [GitHub](https://github.com/Wang-Yile/OI-Notes/blob/main/DP%E7%AC%94%E8%AE%B0.md)。
 
-$$\text{CSP-J/S 2023 RP += inf}$$
-
-## 链接
+# 链接
 
 [动态规划初步·各种子序列问题](https://www.luogu.com.cn/blog/pks-LOVING/junior-dynamic-programming-dong-tai-gui-hua-chu-bu-ge-zhong-zi-xu-lie)
 
 [题解 P1352 【没有上司的舞会】](https://www.luogu.com.cn/blog/xky-666/solution-p1352)
 
-## 思想
+# 写在前面
 
 判断性继承思想：下一状态最优值 = 最优比较函数（已经记录的最优值，可以由先前状态得出的最优值）
 
@@ -17,6 +15,8 @@ $$\text{CSP-J/S 2023 RP += inf}$$
 ~~时间复杂度越高的算法越全能，就像 DFS，它什么都能干。~~
 
 **当发现题目变数很多但只需要最优结果时，大胆去动归。（[P2986 [USACO10MAR] Great Cow Gathering G](https://www.luogu.com.cn/problem/P2986)）**
+
+# DP 类别
 
 ## 1. 最长上升子序列
 
@@ -477,7 +477,133 @@ signed main() {
 
 [\[3.1\] 树形 DP 求树的直径 - OI-Wiki](https://oi-wiki.org/graph/tree-diameter/#%E5%81%9A%E6%B3%95-2-%E6%A0%91%E5%BD%A2-dp)
 
-## 版权声明
+## 4. 背包 DP
+
+### 01 背包 $^{4.1}$
+
+[P2871 [USACO07DEC] Charm Bracelet S](https://www.luogu.com.cn/problem/P2871)
+
+**题意**：有 $n$ 件物品和一个容量为 $m$ 的背包。第 $i$ 件物品的重量是 $w_i$，价值是 $v_i$。将哪些物品装入背包可使这些物品的重量总和不超过背包容量，且价值总和最大。
+
+设 $dp_{i,j}$ 为在只能放前 $i$ 个物品的情况下，容量为 $j$ 的背包所能达到的最大总价值。
+
+考虑转移。假设当前已经处理好了前 $i-1$ 个物品的所有状态，那么对于第 $i$ 个物品，当其不放入背包时，背包的剩余容量不变，背包中物品的总价值也不变，故这种情况的最大价值为 $dp_{i-1,j}$；当其放入背包时，背包的剩余容量会减小 $w_i$，背包中物品的总价值会增大 $v_i$，故这种情况的最大价值为 $dp_{i-1,j-w_i}+v_i$。
+
+所以
+
+$$dp_{i,j}=\max{\begin{cases}dp_{i-1,j}\\dp_{i-1,j-w_i}+d_i\end{cases}}$$
+
+考虑滚动数组优化
+
+$$dp_j=\max{\begin{cases}dp_j\\dp_{j-w_i}+d_i\end{cases}}$$
+
+```cpp
+#include <iostream>
+using namespace std;
+
+int n, m;
+int w[3500];
+int d[3500];
+int dp[12880];
+
+signed main() {
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    cin >> n >> m;
+    for (int i = 1; i <= n; ++i) {
+        cin >> w[i] >> d[i];
+    }
+    for (int i = 1; i <= n; ++i) {         // 枚举顺序不能错
+        for (int j = m; j >= w[i]; --j) {  // 倒叙枚举不能错
+            dp[j] = max(dp[j], dp[j - w[i]] + d[i]);
+        }
+    }
+    cout << dp[m] << endl;
+    return 0;
+}
+```
+
+[P8803 [蓝桥杯 2022 国 B] 费用报销](https://www.luogu.com.cn/problem/P8803)
+
+**题意**：有 $n$ 个物品，要求选出若干个物品使得任意两个物品之间的时间戳之差小于 $k$，和不超过 $m$，求最大价值。
+
+设 $dp_{i,j}$ 表示前 $i$ 个物品占用 $j$ 的空间的最大价值。
+
+本题有些特殊（带限制），$c_i$ 和 $w_i$ 相等，预处理 $g_i$ 表示离它最近的合法的物品的位置。
+
+$$dp_{i,j}=\max(dp_{i-1,j},dp_{g_i,j-c_i}+c_i)$$
+
+```cpp
+#include <algorithm>
+#include <iostream>
+#include <utility>
+
+using namespace std;
+
+int n, m, k, ans;
+
+pair<int, int> a[1005];
+int f[1005][5005];
+int g[1005];
+
+const int days[]{0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+
+static inline int date2day(int month, int day) { return days[month] + day; }
+
+signed main()
+{
+    ios::sync_with_stdio(false);
+    cin.tie(0);
+    cout.tie(0);
+    cin >> n >> m >> k;
+    for (int i = 1; i <= n; ++i) {
+        int mm, d;
+        cin >> mm >> d >> a[i].first;
+        a[i].second = date2day(mm, d);
+    }
+    sort(a + 1, a + n + 1, [](const pair<int, int> &x, const pair<int, int> &y) { return x.second < y.second; });
+    for (int i = 1; i <= n; ++i) {
+        for (int j = 0; j < i; ++j) {
+            if (a[i].second - a[j].second >= k) {
+                g[i] = j;
+            }
+        }
+    }
+    for (int i = 1; i <= n; ++i) {
+        for (int j = m; j >= a[i].first; --j) {
+            f[i][j] = f[i - 1][j];
+            f[i][j] = max(f[i][j], f[g[i]][j - a[i].first] + a[i].first);
+        }
+    }
+    cout << f[n][m] << endl;
+    return 0;
+}
+```
+
+### 完全背包
+
+### Refrences
+
+[\[4.1\] 背包 DP - OI Wiki](https://oi-wiki.org/dp/knapsack/)
+
+# 例题
+
+[P9743 「KDOI-06-J」旅行](https://www.luogu.com.cn/problem/P9743)
+
+**题意**：略。
+
+[](https://www.luogu.com.cn/blog/_post/652280)
+
+设 $dp_{x,y,c,i,j}$ 表示走到 $(x,y)$，花了 $c$ 元，还有 $(i,j)$ 张两公司的票。
+
+容易写出这样的方程（记 $c'=c-a_{i,j}\times a-b_{i,j}\times b$）
+
+$$dp_{x,y,c,i,j}=\sum\limits_{a=0}^{i}{\sum\limits_{b=0}^{j}{dp_{x-1,y,c',i-a+1,j-b}+dp_{x,y-1,c',i-a,j-b+1}}}$$
+
+未完待续
+
+# 版权声明
 
 本文使用 GPL 协议，原文发布在 [GitHub](https://github.com/Wang-Yile/OI-Notes/blob/main/DP%E7%AC%94%E8%AE%B0.md)，以下是本文的版权声明，转载请依然使用 GPL 协议。
 
